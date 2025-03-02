@@ -24,8 +24,8 @@ class Database {
                 (
                     guildId     TEXT NOT NULL,
                     userId      TEXT NOT NULL,
-                    PRIMARY KEY (guildId, userId)
-                    FOREIGN KEY (guildId) REFERENCES guild (guildId)
+                    PRIMARY KEY (guildId, userId),
+                    FOREIGN KEY (guildId) REFERENCES guild (guildId),
                     FOREIGN KEY (userId) REFERENCES users (userId)
                 )`);
             this.db.run(`
