@@ -1,0 +1,24 @@
+# Node.js
+/server/node_modules/
+/web/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Logs
+/server/logs/
+/web/logs/
+*.log
+*.log.*
+
+# Vue.js
+/web/dist/
+*.local
+
+# WebStorm
+/server/.idea/
+/web/.idea/
+
+# Environment variables
+/server/.env
+/web/.env
