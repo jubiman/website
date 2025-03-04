@@ -2,13 +2,12 @@
 import {getRandomSVG} from "@/utils.ts";
 import {useSiteStore} from "@/store/siteStore.ts";
 
-// Select random SVG from @assets/logo/siteName/*.svg
+// Select random SVG from @assets/logo/jubiman/*.svg and set site name and logo
 const imageModules = import.meta.glob('/src/assets/logo/jubiman/*.svg', {
-  eager: true,
-  query: '?url',
+    eager: true,
+    query: '?url',
 });
 let randomSVG = getRandomSVG(imageModules);
-
 const siteStore = useSiteStore();
 siteStore.setSiteName('Jubiman');
 siteStore.logoPath = randomSVG;

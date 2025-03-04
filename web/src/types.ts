@@ -5,11 +5,9 @@ export type User = {
 };
 
 export type Guild = {
-    id: string;
-    name: string;
-    icon: string;
-    config: {
-        channelId: string;
-        identifier: string;
-    }
+    guildId: string;
+    guildName: string;
+    iconUrl: string;
+    channelId?: string;
+    identifier?: string;
 }

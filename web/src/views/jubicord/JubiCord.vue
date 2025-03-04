@@ -2,18 +2,15 @@
 import {useSiteStore} from '@/store/siteStore.ts';
 import {getRandomSVG} from '@/utils.ts';
 
-
-// Select random SVG from @assets/logo/jubicord/*.svg
+// Select random SVG from @assets/logo/jubicord/*.svg and set site name and logo
 const imageModules = import.meta.glob('/src/assets/logo/jubicord/*.svg', {
     eager: true,
     query: '?url',
 });
 let randomSVG = getRandomSVG(imageModules);
-
 const siteStore = useSiteStore();
 siteStore.setSiteName('JubiCord');
 siteStore.logoPath = randomSVG;
-
 </script>
 
 <template>

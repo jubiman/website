@@ -41,6 +41,11 @@ const routes = [
         path: '/jubicord/guilds',
         name: "guilds",
         component: () => import('@/views/jubicord/Guilds.vue'),
+    },
+    {
+        path: '/jubicord/guilds/:guildId',
+        name: "guild",
+        component: () => import('@/views/jubicord/Guild.vue'),
     }
 ];
 

@@ -23,6 +23,9 @@ router.get('/guilds/:guildId', async (req, res) => {
     const {guildId} = req.params;
     const guildConfig = await db.getGuildConfig(guildId);
     let resp = {
+        guildId,
+        guildName: guildConfig.guildName,
+        iconUrl: guildConfig.iconUrl,
         channelId: guildConfig.channelId,
         identifier: guildConfig.identifier
     }
