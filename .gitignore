@@ -13,6 +13,8 @@ yarn-error.log*
 *.log
 *.log.*
 
+server/package-lock.json
+
 # Vue.js
 /web/dist/
 *.local
