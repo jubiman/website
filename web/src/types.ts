@@ -1,7 +1,8 @@
 // Responses from the server
 export type User = {
-  id: string;
-  name: string;
+  userId: string;
+  username: string;
+  avatarUrl: string;
 };
 
 export type Guild = {

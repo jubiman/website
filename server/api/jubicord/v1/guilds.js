@@ -3,7 +3,7 @@ const router = express.Router();
 const db = require('../../../db/database');
 
 // Get guilds
-router.get('/guilds', async (req, res) => {
+router.get('/', async (req, res) => {
     let guilds = await db.getGuilds();
     
     // Filter by identifier if provided
@@ -19,7 +19,7 @@ router.get('/guilds', async (req, res) => {
 });
 
 // Get guild config
-router.get('/guilds/:guildId', async (req, res) => {
+router.get('/:guildId', async (req, res) => {
     const {guildId} = req.params;
     const guildConfig = await db.getGuildConfig(guildId);
     let resp = {
@@ -33,7 +33,7 @@ router.get('/guilds/:guildId', async (req, res) => {
 });
 
 // Create guild
-router.post('/guilds/create', async (req, res) => {
+router.post('/create', async (req, res) => {
     const {guildId, guildName, iconUrl} = req.body;
     let resp = {
         guildId: guildId,
@@ -50,7 +50,7 @@ router.post('/guilds/create', async (req, res) => {
 });
 
 // Set guild config
-router.post('/guilds/:guildId/', async (req, res) => {
+router.post('/:guildId/', async (req, res) => {
     const {guildId} = req.params;
     const {channelId, identifier} = req.body;
     let resp = {
@@ -103,19 +103,31 @@ router.post('/guilds/:guildId/', async (req, res) => {
 });
 
 // Get superusers
-router.get('/guilds/:guildId/superusers', (req, res) => {
+router.get('/:guildId/superusers', (req, res) => {
     const {guildId} = req.params;
+    const { full } = req.query;
     db.getSuperusers(guildId).then(superusers => {
         let resp = {
             status: 200,
             superusers
+        }
+        if (full) {
+            // Fetch full user objects, including usernames and avatars
+            superusers.forEach(superuser => {
+                console.log(superuser);
+                db.getUser(superuser.userId).then(user => {
+                    console.log(user);
+                    superuser.username = user.username;
+                    superuser.avatarUrl = user.avatarUrl;
+                });
+            });
         }
         res.json(resp);
     });
 });
 
 // Add superuser
-router.post('/guilds/:guildId/superusers/', (req, res) => {
+router.post('/:guildId/superusers/', (req, res) => {
     const {guildId} = req.params;
     const {userId} = req.body;
     let resp = {
@@ -132,13 +144,70 @@ router.post('/guilds/:guildId/superusers/', (req, res) => {
 });
 
 // isSuperuser
-router.get('/guilds/:guildId/superusers/:userId', (req, res) => {
+router.get('/:guildId/superusers/:userId', (req, res) => {
     const {guildId, userId} = req.params;
     db.isSuperuser(guildId, userId).then(isSuperuser => {
         let resp = {
             status: 200,
             isSuperuser
         }
+        res.json(resp);
+    });
+});
+
+// Get guild members
+router.get('/:guildId/members', (req, res) => {
+    const {guildId} = req.params;
+    const { full } = req.query;
+    db.getGuildMembers(guildId).then(members => {
+        let resp = {
+            status: 200,
+            members
+        }
+        if (full) {
+            // Fetch full user objects, including usernames and avatars
+            members.forEach(member => {
+                db.getUser(member.userId).then(user => {
+                    member.username = user.username;
+                    member.avatarUrl = user.avatarUrl;
+                });
+            });
+        }
+        res.json(resp);
+    });
+});
+
+// Add guild members
+router.post('/:guildId/members', (req, res) => {
+    const {guildId} = req.params;
+    const {members} = req.body;
+    let resp = {
+        status: 200
+    }
+    db.addGuildMembers(guildId, members).then(count => {
+        resp.count = count;
+        resp.error = null;
+    }).catch(err => {
+        resp.error = err;
+        resp.status = 500;
+    }).then(() => {
+        res.json(resp);
+    });
+});
+
+// Remove guild members
+router.delete('/:guildId/members', (req, res) => {
+    const {guildId} = req.params;
+    const {members} = req.body;
+    let resp = {
+        status: 200
+    }
+    db.removeGuildMembers(guildId, members).then(() => {
+        resp.error = null;
+    }).catch(err => {
+        resp.error = err;
+        resp.status = 500;
+    }).then(() => {
         res.json(resp);
     });
 });

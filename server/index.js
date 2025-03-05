@@ -1,7 +1,11 @@
+const util = require('util');
 // Define the formatting function
 function formatMessage(level, ...args) {
     const timestamp = new Date().toISOString().slice(0, 19).replace('T', ' ');
-    return `[${timestamp}] [${level}] ${args.join(' ')}`;
+    const formattedArgs = args.map(arg =>
+        typeof arg === 'object' ? util.inspect(arg, { depth: 5, colors: true }) : arg
+    );
+    return `[${timestamp}] [${level}] ${formattedArgs.join(' ')}`;
 }
 
 // Override console.log
@@ -32,8 +36,9 @@ app.use(express.json());
 const routesPath = path.join(__dirname, 'api/jubicord/v1');
 fs.readdirSync(routesPath).forEach(file => {
     const route = require(path.join(routesPath, file));
-    app.use('/api/jubicord/v1', route);
-    console.log(`Loaded route: /api/jubicord/v1/${file}`);
+    const routeName = file.split('.')[0];
+    app.use(`/api/jubicord/v1/${routeName}`, route);
+    console.log(`Loaded route: /api/jubicord/v1/${routeName}`);
 });
 console.log('Loaded all routes');
 

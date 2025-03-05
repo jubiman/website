@@ -19,3 +19,9 @@ export async function getGuild(id: string): Promise<Guild> {
     const response = await axios.get(`/api/jubicord/v1/guilds/${id}`);
     return response.data;
 }
+
+// Get superusers
+export async function getSuperusers(guildId: string, params: {}): Promise<User[]> {
+    const response = await axios.get(`/api/jubicord/v1/guilds/${guildId}/superusers`, { params });
+    return response.data.superusers;
+}

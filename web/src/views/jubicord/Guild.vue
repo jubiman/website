@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import {ref, onMounted} from 'vue';
+import {ref, onMounted, nextTick} from 'vue';
 import {useRoute, useRouter} from 'vue-router';
-import {getGuild} from '@/api';
+import {getGuild, getSuperusers } from '@/api';
 import type {Guild} from '@/types';
 import {useSiteStore} from "@/store/siteStore.ts";
 import {getGuildIconUrl, getRandomSVG} from "@/utils.ts";
@@ -25,8 +25,7 @@ onMounted(async () => {
     guildIcon.value = getGuildIconUrl(guildId, guild.value?.iconUrl, guild.value?.guildName);
 
     // Fetch superusers
-    const superusersResponse = await axios.get(`/api/jubicord/v1/guilds/${guildId}/superusers`);
-    superusers.value = superusersResponse.data.superusers;
+    superusers.value = await getSuperusers(guildId, 'full=true');
 
     // Fetch identifier and channelId
     identifier.value = guild.value?.identifier || null;
@@ -40,6 +39,10 @@ function goBack() {
 function editIdentifier() {
     isEditingIdentifier.value = true;
     editedIdentifier.value = identifier.value;
+    nextTick(() => {
+        const input = document.querySelector('.edit-input') as HTMLInputElement;
+        input.focus();
+    });
 }
 
 function cancelEdit() {
@@ -47,12 +50,19 @@ function cancelEdit() {
     editedIdentifier.value = null;
 }
 
+function sanitizeInput(input: string): string {
+    const element = document.createElement('div');
+    element.innerText = input;
+    return element.innerHTML;
+}
+
 async function saveIdentifier() {
     if (editedIdentifier.value !== null) {
+        const sanitizedIdentifier = sanitizeInput(editedIdentifier.value);
         const guildId = route.params.guildId as string;
         try {
-            await axios.post(`/api/jubicord/v1/guilds/${guildId}/`, {identifier: editedIdentifier.value});
-            identifier.value = editedIdentifier.value;
+            await axios.post(`/api/jubicord/v1/guilds/${guildId}/`, {identifier: sanitizedIdentifier});
+            identifier.value = sanitizedIdentifier;
             isEditingIdentifier.value = false;
         } catch (error) {
             console.error('Failed to save identifier:', error);
