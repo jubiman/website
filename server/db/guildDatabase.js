@@ -2,14 +2,14 @@ const e = require("express");
 require('dotenv').config();
 const sqlite3 = require('sqlite3').verbose();
 
-class Database {
+class GuildDatabase {
     constructor() {
-        if (Database._instance) {
-            return Database._instance;
+        if (GuildDatabase._instance) {
+            return GuildDatabase._instance;
         }
-        Database._instance = this;
-        
-        this.db = new sqlite3.Database('config.db'); // Create or open the database
+        GuildDatabase._instance = this;
+
+        this.db = new sqlite3.Database('guild.db'); // Create or open the database
         this.db.serialize(() => {
             this.db.run(`
                 CREATE TABLE IF NOT EXISTS guild
@@ -47,7 +47,7 @@ class Database {
                 )`);
         });
     }
-    
+
     async getChannelId(guildId) {
         return new Promise((resolve, reject) => {
             this.db.get('SELECT channelId FROM guild WHERE guildId = ?', [guildId], (err, row) => {
@@ -56,7 +56,7 @@ class Database {
             });
         });
     }
-    
+
     async createGuild(guildId, guildName, iconUrl) {
         return new Promise((resolve, reject) => {
             this.db.run('INSERT INTO guild (guildId, guildName, iconUrl) VALUES (?, ?, ?)', [guildId, guildName, iconUrl], (err) => {
@@ -65,7 +65,7 @@ class Database {
             });
         });
     }
-    
+
     async getGuilds() {
         return new Promise((resolve, reject) => {
             this.db.all('SELECT * FROM guild', (err, rows) => {
@@ -74,7 +74,7 @@ class Database {
             });
         });
     }
-    
+
     async getGuildConfig(guildId) {
         return new Promise((resolve, reject) => {
             this.db.get('SELECT * FROM guild WHERE guildId = ?', [guildId], (err, row) => {
@@ -146,7 +146,7 @@ class Database {
             });
         });
     }
-    
+
     async getSuperusers(guildId) {
         return new Promise((resolve, reject) => {
             this.db.all('SELECT userId FROM superusers WHERE guildId = ?', [guildId], (err, rows) => {
@@ -277,4 +277,4 @@ class Database {
     }
 }
 
-module.exports = new Database();
+module.exports = new GuildDatabase();

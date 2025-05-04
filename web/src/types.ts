@@ -5,6 +5,13 @@ export type User = {
   avatarUrl: string;
 };
 
+export type Superuser = {
+    userId: string;
+    guildId?: string;
+    username?: string;
+    avatarUrl?: string;
+}
+
 export type Guild = {
     guildId: string;
     guildName: string;

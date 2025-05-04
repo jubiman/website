@@ -1,17 +1,17 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../../../db/database');
+const db = require('../../../db/guildDatabase');
 
 // Get guilds
 router.get('/', async (req, res) => {
     let guilds = await db.getGuilds();
-    
+
     // Filter by identifier if provided
     const {identifier} = req.query;
     if (identifier) {
         guilds = guilds.filter(guild => guild.identifier === identifier);
     }
-    
+
     let resp = {
         guilds
     }
@@ -103,27 +103,47 @@ router.post('/:guildId/', async (req, res) => {
 });
 
 // Get superusers
-router.get('/:guildId/superusers', (req, res) => {
+router.get('/:guildId/superusers', async (req, res) => {
     const {guildId} = req.params;
     const { full } = req.query;
-    db.getSuperusers(guildId).then(superusers => {
-        let resp = {
-            status: 200,
-            superusers
-        }
+    try {
+        let superusers = await db.getSuperusers(guildId);
         if (full) {
-            // Fetch full user objects, including usernames and avatars
-            superusers.forEach(superuser => {
-                console.log(superuser);
-                db.getUser(superuser.userId).then(user => {
-                    console.log(user);
-                    superuser.username = user.username;
-                    superuser.avatarUrl = user.avatarUrl;
-                });
-            });
+            superusers = await Promise.all(superusers.map(async superuser => {
+                const user = await db.getUser(superuser.userId);
+                return {
+                    ...superuser,
+                    username: user.username,
+                    avatarUrl: user.avatarUrl
+                };
+            }));
         }
-        res.json(resp);
-    });
+        res.json({ status: 200, superusers });
+    } catch (err) {
+        res.status(500).json({ status: 500, error: err.message });
+    }
+});
+
+// Get guild members
+router.get('/:guildId/members', async (req, res) => {
+    const {guildId} = req.params;
+    const { full } = req.query;
+    try {
+        let members = await db.getGuildMembers(guildId);
+        if (full) {
+            members = await Promise.all(members.map(async member => {
+                const user = await db.getUser(member.userId);
+                return {
+                    ...member,
+                    username: user.username,
+                    avatarUrl: user.avatarUrl
+                };
+            }));
+        }
+        res.json({ status: 200, members });
+    } catch (err) {
+        res.status(500).json({ status: 500, error: err.message });
+    }
 });
 
 // Add superuser

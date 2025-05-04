@@ -19,6 +19,7 @@ const routes = [
             ]
         }
     },
+// ------------------ JubiCord Routes ------------------
     {
         path: '/jubicord',
         name: "jubicord",
@@ -46,7 +47,7 @@ const routes = [
         path: '/jubicord/guilds/:guildId',
         name: "guild",
         component: () => import('@/views/jubicord/Guild.vue'),
-    }
+    },
 ];
 
 const router = createRouter({

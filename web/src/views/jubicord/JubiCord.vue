@@ -2,6 +2,9 @@
 import {useSiteStore} from '@/store/siteStore.ts';
 import {getRandomSVG} from '@/utils.ts';
 
+// TODO: convert this to a dashboard and create a public page as a sort of README
+// TODO: This page will then be behind a login wall
+
 // Select random SVG from @assets/logo/jubicord/*.svg and set site name and logo
 const imageModules = import.meta.glob('/src/assets/logo/jubicord/*.svg', {
     eager: true,

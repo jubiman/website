@@ -2,7 +2,7 @@
 import {ref, onMounted, nextTick} from 'vue';
 import {useRoute, useRouter} from 'vue-router';
 import {getGuild, getSuperusers } from '@/api';
-import type {Guild} from '@/types';
+import type {Guild, Superuser} from '@/types';
 import {useSiteStore} from "@/store/siteStore.ts";
 import {getGuildIconUrl, getRandomSVG} from "@/utils.ts";
 import axios from 'axios';
@@ -13,7 +13,7 @@ const router = useRouter();
 const toast = useToast();
 const guild = ref<Guild | null>(null);
 const guildIcon = ref<string>();
-const superusers = ref<string[]>([]);
+const superusers = ref<Superuser[]>([]);
 const identifier = ref<string | null>(null);
 const channelId = ref<string | null>(null);
 const isEditingIdentifier = ref(false);
@@ -25,7 +25,11 @@ onMounted(async () => {
     guildIcon.value = getGuildIconUrl(guildId, guild.value?.iconUrl, guild.value?.guildName);
 
     // Fetch superusers
-    superusers.value = await getSuperusers(guildId, 'full=true');
+    const fetchedSuperusers: Superuser[] = await getSuperusers(guildId, { full: true });
+    superusers.value = fetchedSuperusers.map(user => ({
+        ...user,
+        avatarUrl: `https://cdn.discordapp.com/avatars/${user.userId}/${user.avatarUrl}.png`
+    }));
 
     // Fetch identifier and channelId
     identifier.value = guild.value?.identifier || null;
@@ -101,7 +105,10 @@ siteStore.logoPath = randomSVG;
             <div class="guild-info-item">
                 <h3>Superusers</h3>
                 <ul>
-                    <li v-for="user in superusers" :key="user">{{ user }}</li>
+                    <li v-for="user in superusers" :key="user.userId" class="superuser-item">
+                        <img :src="user.avatarUrl" alt="User avatar" class="superuser-avatar"/>
+                        <span>{{ user.username }}</span>
+                    </li>
                 </ul>
             </div>
             <div class="guild-info-item">
@@ -200,6 +207,20 @@ siteStore.logoPath = randomSVG;
 .guild-info-item ul {
     list-style-type: none;
     padding: 0;
+}
+
+.superuser-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.superuser-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
 }
 
 .edit-box {
